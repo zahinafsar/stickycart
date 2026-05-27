@@ -125,7 +125,7 @@ export async function claimReferral(args: {
   try {
     await sendEmail({
       to: friendEmail,
-      subject: `Your ${brand.refereePercent}% off code`,
+      subject: `Your referral code for ${args.shop.replace(/\.myshopify\.com$/, "")}`,
       react: RefereeCodeEmail({
         shop: args.shop,
         code,
@@ -234,7 +234,8 @@ export async function convertReferral(args: {
   try {
     await sendEmail({
       to: referrer.email,
-      subject: `You earned ${brand.refererPercent}% off`,
+      subject: `Your referral reward at ${args.shop.replace(/\.myshopify\.com$/, "")}`,
+      entityRefId: args.order.id,
       react: ReferrerRewardEmail({
         shop: args.shop,
         code: rewardCode,

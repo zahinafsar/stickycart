@@ -72,9 +72,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             data: { firstOrderId: orderId },
           });
           const shareUrl = buildShareLink({ shop, code: referrer.code });
+          const storeName = shop.replace(/\.myshopify\.com$/, "");
           await sendEmail({
             to: referrer.email,
-            subject: `Share & save at ${shop.replace(/\.myshopify\.com$/, "")}`,
+            subject: `Your referral link for ${storeName}`,
+            entityRefId: String(order.id),
             react: ReferrerInviteEmail({
               shop,
               shareUrl,

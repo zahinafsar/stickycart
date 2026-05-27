@@ -1,9 +1,8 @@
 import {
   Body,
-  Button,
   Container,
   Head,
-  Heading,
+  Hr,
   Html,
   Preview,
   Section,
@@ -19,43 +18,41 @@ type Props = {
 
 export function ReferrerRewardEmail({ shop, code, percent, expiresAt }: Props) {
   const url = `https://${shop}/discount/${encodeURIComponent(code)}?redirect=/`;
+  const storeName = shop.replace(/\.myshopify\.com$/, "");
   return (
     <Html>
       <Head />
-      <Preview>{`You earned ${percent}% off at ${shop}`}</Preview>
-      <Body style={{ fontFamily: "Arial, sans-serif", background: "#f5f5f5", padding: 24 }}>
-        <Container style={{ background: "#fff", padding: 32, borderRadius: 8, maxWidth: 480 }}>
-          <Heading style={{ margin: 0 }}>Thanks for spreading the word</Heading>
-          <Text>
-            Your friend just made their first purchase at <strong>{shop}</strong>. Here is your
-            reward.
+      <Preview>{`Your referral reward at ${storeName}`}</Preview>
+      <Body style={body}>
+        <Container style={container}>
+          <Text style={brand}>{storeName}</Text>
+          <Hr style={hr} />
+          <Text style={heading}>You earned a reward</Text>
+          <Text style={p}>
+            Your friend just shopped. Enjoy <strong style={pct}>{percent}%</strong> off your next
+            order at {storeName} with code <strong style={pct}>{code}</strong>.
           </Text>
-          <Section style={{ background: "#f0f0f0", padding: 16, borderRadius: 6, textAlign: "center" as const }}>
-            <Text style={{ fontSize: 12, margin: 0 }}>Your reward code</Text>
-            <Text style={{ fontSize: 24, fontWeight: 700, letterSpacing: 2, margin: "8px 0" }}>{code}</Text>
-            <Text style={{ fontSize: 14, margin: 0 }}>{percent}% off your next order</Text>
+          <Section style={linkBox}>
+            <Text style={linkLabel}>Your link</Text>
+            <Text style={linkText}>{url}</Text>
           </Section>
-          <Button
-            href={url}
-            style={{
-              display: "inline-block",
-              marginTop: 16,
-              background: "#111",
-              color: "#fff",
-              padding: "12px 20px",
-              borderRadius: 6,
-              textDecoration: "none",
-            }}
-          >
-            Claim my reward
-          </Button>
-          <Text style={{ color: "#666", fontSize: 12, marginTop: 24 }}>
-            Expires {expiresAt.toLocaleDateString()}. One-time use.
-          </Text>
+          <Text style={muted}>One-time use. Expires {expiresAt.toLocaleDateString()}.</Text>
         </Container>
       </Body>
     </Html>
   );
 }
+
+const body = { fontFamily: "Arial, sans-serif", background: "#ffffff", padding: 24, color: "#1f2328", margin: 0 };
+const container = { maxWidth: 560, margin: "0 auto" };
+const brand = { fontSize: 16, fontWeight: 700, margin: 0, color: "#1f2328" };
+const hr = { borderColor: "#e5e7eb", margin: "12px 0 16px" };
+const heading = { fontSize: 18, fontWeight: 600, color: "#1f2328", margin: "0 0 12px" };
+const p = { fontSize: 15, lineHeight: "22px", margin: "0 0 16px" };
+const pct = { color: "#1f2328", fontWeight: 700 };
+const linkBox = { background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: 6, padding: 12, margin: "0 0 16px" };
+const linkLabel = { fontSize: 12, color: "#6b7280", margin: "0 0 4px" };
+const linkText = { fontSize: 14, color: "#0a58ca", margin: 0, wordBreak: "break-all" as const };
+const muted = { color: "#6b7280", fontSize: 12, margin: 0, lineHeight: "18px" };
 
 export default ReferrerRewardEmail;
