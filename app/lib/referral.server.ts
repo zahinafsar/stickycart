@@ -200,6 +200,7 @@ async function convertClaim(args: {
   try {
     await sendEmail({
       to: referrer.customer.email,
+      from: "referral@gluesale.com",
       subject: `Your friend used your referral at ${shop.replace(/\.myshopify\.com$/, "")}`,
       entityRefId: order.id,
       react: ReferrerRewardEmail({

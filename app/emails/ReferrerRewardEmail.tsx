@@ -17,7 +17,6 @@ type Props = {
 };
 
 export function ReferrerRewardEmail({ shop, code, label, conditions }: Props) {
-  const url = `https://${shop}/discount/${encodeURIComponent(code)}?redirect=/`;
   const storeName = shop.replace(/\.myshopify\.com$/, "");
   return (
     <Html>
@@ -33,10 +32,6 @@ export function ReferrerRewardEmail({ shop, code, label, conditions }: Props) {
             at {storeName} gets <strong style={pct}>{label}</strong> with code{" "}
             <strong style={pct}>{code}</strong>.
           </Text>
-          <Section style={linkBox}>
-            <Text style={linkLabel}>Your link</Text>
-            <Text style={linkText}>{url}</Text>
-          </Section>
           {conditions.length > 0 && (
             <Section style={termsBox}>
               <Text style={termsTitle}>Terms &amp; conditions</Text>
@@ -60,9 +55,6 @@ const hr = { borderColor: "#e5e7eb", margin: "12px 0 16px" };
 const heading = { fontSize: 18, fontWeight: 600, color: "#1f2328", margin: "0 0 12px" };
 const p = { fontSize: 15, lineHeight: "22px", margin: "0 0 16px" };
 const pct = { color: "#1f2328", fontWeight: 700 };
-const linkBox = { background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: 6, padding: 12, margin: "0 0 16px" };
-const linkLabel = { fontSize: 12, color: "#6b7280", margin: "0 0 4px" };
-const linkText = { fontSize: 14, color: "#0a58ca", margin: 0, wordBreak: "break-all" as const };
 const termsBox = { margin: "0 0 16px" };
 const termsTitle = { fontSize: 12, fontWeight: 600, color: "#6b7280", margin: "0 0 6px" };
 const termsItem = { fontSize: 12, color: "#6b7280", margin: "0 0 2px", lineHeight: "18px" };

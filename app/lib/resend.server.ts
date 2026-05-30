@@ -13,6 +13,7 @@ function getClient(): Resend {
 export async function sendEmail(opts: {
   to: string;
   subject: string;
+  from?: string;
   react?: React.ReactElement;
   html?: string;
   text?: string;
@@ -31,7 +32,7 @@ export async function sendEmail(opts: {
   };
 
   const { data, error } = await getClient().emails.send({
-    from: env.RESEND_FROM(),
+    from: opts.from ?? env.RESEND_FROM(),
     to: opts.to,
     subject: opts.subject,
     react: opts.react,
