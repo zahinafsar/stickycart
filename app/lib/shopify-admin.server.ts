@@ -40,7 +40,7 @@ export async function getOrderContact(
         customer { numberOfOrders }
       }
     }`,
-    { variables: { id: orderId } },
+    { variables: { id: orderId.replace("OrderIdentity", "Order") } },
   );
   const json = (await resp.json()) as {
     data?: { order?: { email?: string | null; customer?: { numberOfOrders: string | number } | null } | null };
@@ -70,11 +70,11 @@ export async function createDiscountCode(
     opts.type === "PERCENT"
       ? { value: { percentage: opts.amount / 100 }, items: { all: true } }
       : {
-          value: {
-            discountAmount: { amount: opts.amount.toFixed(2), appliesOnEachItem: false },
-          },
-          items: { all: true },
-        };
+        value: {
+          discountAmount: { amount: opts.amount.toFixed(2), appliesOnEachItem: false },
+        },
+        items: { all: true },
+      };
 
   const input: Record<string, unknown> = {
     title: opts.title,
