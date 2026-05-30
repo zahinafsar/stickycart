@@ -17,11 +17,6 @@ import { parseDiscountConfig, formatDiscountLabel, describeDiscountConditions } 
 
 const norm = (s: string) => s.trim().toLowerCase();
 
-const toOrderCount = (v: number | string | null | undefined): number => {
-  if (typeof v === "string") return parseInt(v, 10) || 1;
-  return v ?? 1;
-};
-
 export type ClaimResult =
   | { ok: true; refereeCode: string; redirectUrl: string; discountLabel: string }
   | {
@@ -95,7 +90,7 @@ export async function claimReferral(args: {
 export type ProcessReferralOrder = {
   id: string;
   email?: string | null;
-  customer?: { id?: string | null; numberOfOrders?: number | string | null } | null;
+  customer?: { id?: string | null } | null;
   discount_codes?: Array<{ code: string }>;
 };
 
@@ -147,7 +142,12 @@ async function convertClaim(args: {
     return true;
   }
 
-  if (config.firstPurchaseOnly && toOrderCount(order.customer?.numberOfOrders) > 1) {
+  // Friend must be new to the brand: no prior Customer row for (brand, email).
+  // Runs before linkReferee() creates the referee's Customer below.
+  const existingReferee = await prisma.customer.findUnique({
+    where: { brandId_email: { brandId: brand.id, email: orderEmail } },
+  });
+  if (existingReferee) {
     await prisma.referral.update({
       where: { id: referral.id },
       data: { status: "REJECTED_EXISTING" },
@@ -257,7 +257,12 @@ async function sendReferrerInvite(args: {
 
   const email = norm(order.email ?? "");
   if (!email) return;
-  if (toOrderCount(order.customer?.numberOfOrders) > 1) return;
+
+  // First-time only: skip returning customers (existing Customer row for brand+email).
+  const existing = await prisma.customer.findUnique({
+    where: { brandId_email: { brandId: brand.id, email } },
+  });
+  if (existing) return;
 
   const customer = await getOrCreateCustomer(brand, {
     email,
@@ -272,7 +277,7 @@ async function sendReferrerInvite(args: {
   const referrerDiscount = parseDiscountConfig(config.referrerDiscount);
 
   const conditions: string[] = [];
-  if (config.firstPurchaseOnly) conditions.push("Friends must be new customers");
+  conditions.push("Friends must be new customers");
   conditions.push("One reward per referred customer");
   conditions.push(
     `Friend's ${formatDiscountLabel(refereeDiscount)}: ${describeDiscountConditions(refereeDiscount).join(", ")}`,

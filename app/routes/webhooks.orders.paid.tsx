@@ -11,8 +11,6 @@ type OrderPayload = {
   email?: string | null;
   customer?: {
     admin_graphql_api_id?: string;
-    orders_count?: number | string | null;
-    number_of_orders?: number | string | null;
   } | null;
   discount_codes?: Array<{ code: string }>;
 };
@@ -40,7 +38,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         email: order.email,
         customer: {
           id: order.customer?.admin_graphql_api_id ?? null,
-          numberOfOrders: order.customer?.orders_count ?? order.customer?.number_of_orders ?? 1,
         },
         discount_codes: order.discount_codes,
       },

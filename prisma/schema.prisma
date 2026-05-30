@@ -64,7 +64,6 @@ model ReferralConfig {
   refereeDiscount     Json     @default("{\"type\":\"PERCENT\",\"amount\":10,\"validity_seconds\":2592000,\"max_uses\":1,\"min_order_amount\":0}")
   referrerDiscount    Json     @default("{\"type\":\"PERCENT\",\"amount\":10,\"validity_seconds\":2592000,\"max_uses\":1,\"min_order_amount\":0}")
   maxReferralsPerUser Int?
-  firstPurchaseOnly   Boolean  @default(true)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 

@@ -21,7 +21,6 @@ type LoaderData = {
   brand: { id: string; shop: string };
   config: {
     enabled: boolean;
-    firstPurchaseOnly: boolean;
     maxReferralsPerUser: number | null;
     refereeDiscount: DiscountConfig;
     referrerDiscount: DiscountConfig;
@@ -60,7 +59,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     brand: { id: brand.id, shop: brand.shop },
     config: {
       enabled: config.enabled,
-      firstPurchaseOnly: config.firstPurchaseOnly,
       maxReferralsPerUser: config.maxReferralsPerUser,
       refereeDiscount: parseDiscountConfig(config.refereeDiscount),
       referrerDiscount: parseDiscountConfig(config.referrerDiscount),
@@ -135,13 +133,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         : 0,
   };
 
-  const eligibility = form.getAll("eligibility").map(String);
-
   await prisma.referralConfig.update({
     where: { id: current.id },
     data: {
       enabled: String(form.get("enabled")) === "true",
-      firstPurchaseOnly: eligibility.includes("firstPurchaseOnly"),
       maxReferralsPerUser:
         form.get("limitReferralsOn") === "on"
           ? nullableInt(form.get("maxReferralsPerUser"), current.maxReferralsPerUser)
@@ -340,22 +335,6 @@ export default function ReferralAdmin() {
             </s-stack>
           </s-section>
 
-          <s-section heading="Eligibility">
-            <s-choice-list
-              name="eligibility"
-              label="Eligibility"
-              labelAccessibilityVisibility="exclusive"
-              multiple
-            >
-              <s-choice
-                value="firstPurchaseOnly"
-                {...(data.config.firstPurchaseOnly ? { selected: true } : {})}
-              >
-                First-time customers only
-              </s-choice>
-            </s-choice-list>
-          </s-section>
-
           <s-section heading="Limits">
             <s-stack direction="block" gap="small-200">
               <s-checkbox
@@ -427,11 +406,7 @@ export default function ReferralAdmin() {
               <s-list-item>
                 Customer reward: {formatDiscount(data.config.referrerDiscount)}
               </s-list-item>
-              <s-list-item>
-                {data.config.firstPurchaseOnly
-                  ? "First-time customers only"
-                  : "All customers eligible"}
-              </s-list-item>
+              <s-list-item>First-time customers only</s-list-item>
             </s-unordered-list>
           </s-section>
         </s-box>

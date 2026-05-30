@@ -16,7 +16,6 @@ type LoaderData = {
 
 function buildConditions(
   d: ReturnType<typeof parseDiscountConfig>,
-  firstPurchaseOnly: boolean,
 ): string[] {
   const conditions: string[] = [];
   const days = Math.max(1, Math.round(d.validity_seconds / 86400));
@@ -25,7 +24,7 @@ function buildConditions(
   if (d.max_uses === 1) conditions.push("Single use");
   else if (d.max_uses && d.max_uses > 1) conditions.push(`Up to ${d.max_uses} uses`);
   conditions.push("One per customer");
-  if (firstPurchaseOnly) conditions.push("New customers only");
+  conditions.push("New customers only");
   return conditions;
 }
 
@@ -54,7 +53,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     code,
     brandName: shop.replace(/\.myshopify\.com$/, ""),
     discountLabel: formatDiscountLabel(refereeDiscount),
-    conditions: buildConditions(refereeDiscount, config.firstPurchaseOnly),
+    conditions: buildConditions(refereeDiscount),
   });
 };
 
