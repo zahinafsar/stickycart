@@ -3,6 +3,17 @@ import type { DiscountType } from "./discount-config";
 
 export type AdminClient = AdminApiContext["graphql"];
 
+export async function getShopName(graphql: AdminClient): Promise<string | null> {
+  const resp = await graphql(
+    `#graphql
+    query ShopName {
+      shop { name }
+    }`,
+  );
+  const json = (await resp.json()) as { data?: { shop?: { name?: string } } };
+  return json.data?.shop?.name?.trim() || null;
+}
+
 export async function findCustomerByEmail(
   graphql: AdminClient,
   email: string,

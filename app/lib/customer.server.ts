@@ -1,15 +1,15 @@
 import type { Brand, Customer, Referee, ReferralConfig, Referrer } from "@prisma/client";
 import prisma from "../db.server";
 import { generateReferralCode } from "./code.server";
+import { getShopName, type AdminClient } from "./shopify-admin.server";
 
 const norm = (s: string) => s.trim().toLowerCase();
 
-export async function getOrCreateBrand(shop: string): Promise<Brand> {
-  return prisma.brand.upsert({
-    where: { shop },
-    create: { shop },
-    update: {},
-  });
+export async function getOrCreateBrand(shop: string, graphql?: AdminClient): Promise<Brand> {
+  const existing = await prisma.brand.findUnique({ where: { shop } });
+  if (existing) return existing;
+  const name = graphql ? await getShopName(graphql).catch(() => null) : null;
+  return prisma.brand.create({ data: { shop, name } });
 }
 
 export async function getOrCreateCustomer(

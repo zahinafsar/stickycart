@@ -36,8 +36,8 @@ type LoaderData = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const brand = await getOrCreateBrand(session.shop);
+  const { admin, session } = await authenticate.admin(request);
+  const brand = await getOrCreateBrand(session.shop, admin.graphql);
   const config = await getReferralConfig(brand);
 
   const [total, claimed, converted, recent] = await Promise.all([
@@ -93,8 +93,8 @@ function nullableInt(v: FormDataEntryValue | null, fallback: number | null): num
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const brand = await getOrCreateBrand(session.shop);
+  const { admin, session } = await authenticate.admin(request);
+  const brand = await getOrCreateBrand(session.shop, admin.graphql);
   const current = await getReferralConfig(brand);
   const form = await request.formData();
 

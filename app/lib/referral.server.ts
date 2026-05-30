@@ -17,19 +17,25 @@ import { parseDiscountConfig, formatDiscountLabel, describeDiscountConditions } 
 
 const norm = (s: string) => s.trim().toLowerCase();
 
+function brandFromAddress(brand: Brand): string {
+  const name = brand.name?.trim()
+  return `${name} via Gluesale <referrals@gluesale.com>`;
+}
+
 export type ClaimResult =
   | { ok: true; refereeCode: string; redirectUrl: string; discountLabel: string }
   | {
-      ok: false;
-      reason: "invalid_code" | "program_off" | "limit_reached" | "error";
-      message: string;
-    };
+    ok: false;
+    reason: "invalid_code" | "program_off" | "limit_reached" | "error";
+    message: string;
+  };
 
 export async function claimReferral(args: {
   shop: string;
   referrerCode: string;
 }): Promise<ClaimResult> {
-  const brand = await getOrCreateBrand(args.shop);
+  const { admin } = await unauthenticated.admin(args.shop);
+  const brand = await getOrCreateBrand(args.shop, admin.graphql);
   const config = await getReferralConfig(brand);
   if (!config.enabled)
     return { ok: false, reason: "program_off", message: "Referral program not active" };
@@ -57,7 +63,6 @@ export async function claimReferral(args: {
   const startsAt = new Date();
   const endsAt = new Date(startsAt.getTime() + d.validity_seconds * 1000);
 
-  const { admin } = await unauthenticated.admin(args.shop);
   const { nodeId } = await createDiscountCode(admin.graphql, {
     title: `Referral discount (${args.referrerCode})`,
     code,
@@ -200,7 +205,7 @@ async function convertClaim(args: {
   try {
     await sendEmail({
       to: referrer.customer.email,
-      from: "referral@gluesale.com",
+      from: brandFromAddress(brand),
       subject: `Your friend used your referral at ${shop.replace(/\.myshopify\.com$/, "")}`,
       entityRefId: order.id,
       react: ReferrerRewardEmail({
@@ -289,7 +294,7 @@ async function sendReferrerInvite(args: {
   try {
     await sendEmail({
       to: customer.email,
-      from: "referral@gluesale.com",
+      from: brandFromAddress(brand),
       subject: `Your referral link for ${storeName}`,
       entityRefId: order.id,
       react: ReferrerInviteEmail({
